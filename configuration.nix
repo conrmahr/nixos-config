@@ -5,16 +5,15 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.zfs.extraPools = [ "jjpool" ];
-
 
   networking.hostName = "jubjub"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -39,9 +38,6 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-
-  
-
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
@@ -57,39 +53,52 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-    users.users.conor = {
-     isNormalUser = true;
-     home = "/home/conor";
-     description = "";
-     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-     shell = pkgs.zsh;
-     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkuFaBSpJHo/xVAoYXaxdfH9RBx/3/poeZF2FloDgBB conor@itchy" ];
-   };
+  users.users.conor = {
+    isNormalUser = true;
+    home = "/home/conor";
+    description = "";
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    shell = pkgs.zsh;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkuFaBSpJHo/xVAoYXaxdfH9RBx/3/poeZF2FloDgBB conor@itchy"
+    ];
+  };
+
+  environment.variables = { EDITOR = "vim"; };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-     vim
-     git
-     gh
-     wget
-     iperf3
-     neofetch
-     tmux
-     rsync
-     iotop
-     ncdu
-     nmap
-     jq
-     lsof
-     htop
-   ];
+    git
+    gh
+    wget
+    iperf3
+    neofetch
+    tmux
+    rsync
+    iotop
+    ncdu
+    nmap
+    jq
+    lsof
+    htop
+    nixfmt
+    (vim-full.customize {
+      name = "vim";
+      vimrcConfig.packages.myVimPackage = with pkgs.vimPlugins; {
+        start = [ vim-nix ];
+        opt = [ ];
+      };
+      vimrcConfig.customRC = ''
+        set nocompatible
+        set backspace=indent,eol,start
+        syntax on
+        set hidden
+      '';
+    })
+  ];
 
-  nixpkgs = {
-	config = {
-		allowUnfree = true;
-	};
-  };
+  nixpkgs = { config = { allowUnfree = true; }; };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -129,10 +138,9 @@
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "23.11"; # Did you read the comment?
 
-
- nix = {
- package = pkgs.nixFlakes;
- extraOptions = "experimental-features = nix-command flakes";
-};
+  nix = {
+    package = pkgs.nixFlakes;
+    extraOptions = "experimental-features = nix-command flakes";
+  };
 
 }
