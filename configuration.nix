@@ -5,8 +5,7 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    # Include the results of the hardware scan.
+  imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
 
@@ -57,17 +56,16 @@
     isNormalUser = true;
     home = "/home/conor";
     description = "";
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkuFaBSpJHo/xVAoYXaxdfH9RBx/3/poeZF2FloDgBB conor@itchy"
     ];
   };
 
-  environment.variables = { EDITOR = "vim"; };
-
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+
   environment.systemPackages = with pkgs; [
     git
     gh
@@ -83,17 +81,20 @@
     lsof
     htop
     nixfmt
-    (vim-full.customize {
+    ((vim_configurable.override { }).customize {
       name = "vim";
-      vimrcConfig.packages.myVimPackage = with pkgs.vimPlugins; {
-        start = [ vim-nix ];
+      # Install plugins for example for syntax highlighting of nix files
+      vimrcConfig.packages.myplugins = with pkgs.vimPlugins; {
+        start = [ vim-nix vim-lastplace ];
         opt = [ ];
       };
       vimrcConfig.customRC = ''
+        " your custom vimrc
         set nocompatible
         set backspace=indent,eol,start
+        " Turn on syntax highlighting by default
         syntax on
-        set hidden
+        " ...
       '';
     })
   ];
@@ -110,15 +111,59 @@
   programs.zsh.enable = true;
 
   # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-  # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Setup AFP  Server
+  services.netatalk = {
+    enable = true;
+    settings = {
+      audio = {
+        path = "/mnt/data1/audio";
+        "valid users" = "conor";
+      };
+      files = {
+        path = "/mnt/data1/files";
+        "valid users" = "conor";
+      };
+      inbox = {
+        path = "/mnt/data1/inbox";
+        "valid users" = "conor";
+      };
+      photo = {
+        path = "/mnt/data1/photo";
+        "valid users" = "conor";
+      };
+      video = {
+        path = "/mnt/data1/video";
+        "valid users" = "conor";
+      };
+      backup-itchy = {
+        path = "/mnt/data1/backup/itchy";
+        "valid users" = "conor";
+        "time machine" = "yes";
+      };
+    };
+  };
+
+  # Setup Avahi Service
+  services.avahi = {
+    enable = true;
+    nssmdns = true;
+    publish = {
+      enable = true;
+      userServices = true;
+    };
+  };
+
+  # Check if share folder is created and set
+  systemd.tmpfiles.rules = [ "d /mnt/data1 0755 conor users" ];
+
   # Or disable the firewall altogether.
   networking.firewall.enable = true;
+
+  # Open ports in the firewall.
+  networking.firewall.allowedTCPPorts = [ 548 ];
+  networking.firewall.allowedUDPPorts = [ 5353 ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
