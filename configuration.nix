@@ -92,6 +92,8 @@
         " your custom vimrc
         set nocompatible
         set backspace=indent,eol,start
+        set number
+        set title
         " Turn on syntax highlighting by default
         syntax on
         " ...
@@ -111,6 +113,8 @@
   programs.zsh.enable = true;
 
   # List services that you want to enable:
+  
+  # Start SSHD
   services.openssh.enable = true;
 
   # Setup AFP  Server
