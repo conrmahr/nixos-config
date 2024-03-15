@@ -14,42 +14,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.zfs.extraPools = [ "jjpool" ];
 
-  networking.hostName = "jubjub"; # Define your hostname.
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
-
   # Set your time zone.
   time.timeZone = "America/Chicago";
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Select internationalisation properties.
-  # i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  #   useXkbConfig = true; # use xkb.options in tty.
-  # };
-
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
-
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.conor = {
@@ -64,20 +30,15 @@
   };
 
   # List packages installed in system profile. To search, run:
-  # $ nix search wget
-
   environment.systemPackages = with pkgs; [
     git
     gh
     wget
-    iperf3
     neofetch
     tmux
     rsync
     iotop
-    ncdu
     nmap
-    jq
     lsof
     htop
     nixfmt
@@ -103,71 +64,74 @@
 
   nixpkgs = { config = { allowUnfree = true; }; };
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-  programs.zsh.enable = true;
+  # List of programs to enable
+  programs = {
+    zsh = {
+      enable = true;
+      enableCompletion = true;
+      enableBashCompletion = true;
+    };
+  };
 
   # List services that you want to enable:
-  
-  # Start SSHD
-  services.openssh.enable = true;
+  services = {
+    # Start SSHD
+    openssh.enable = true;
 
-  # Setup AFP  Server
-  services.netatalk = {
-    enable = true;
-    settings = {
-      audio = {
-        path = "/mnt/data1/audio";
-        "valid users" = "conor";
+    # Setup AFP  Server
+    netatalk = {
+      enable = true;
+      settings = {
+        audio = {
+          path = "/mnt/data1/audio";
+          "valid users" = "conor";
+        };
+        files = {
+          path = "/mnt/data1/files";
+          "valid users" = "conor";
+        };
+        inbox = {
+          path = "/mnt/data1/inbox";
+          "valid users" = "conor";
+        };
+        photo = {
+          path = "/mnt/data1/photo";
+          "valid users" = "conor";
+        };
+        video = {
+          path = "/mnt/data1/video";
+          "valid users" = "conor";
+        };
+        backup-itchy = {
+          path = "/mnt/data1/backup/itchy";
+          "valid users" = "conor";
+          "time machine" = "yes";
+        };
       };
-      files = {
-        path = "/mnt/data1/files";
-        "valid users" = "conor";
-      };
-      inbox = {
-        path = "/mnt/data1/inbox";
-        "valid users" = "conor";
-      };
-      photo = {
-        path = "/mnt/data1/photo";
-        "valid users" = "conor";
-      };
-      video = {
-        path = "/mnt/data1/video";
-        "valid users" = "conor";
-      };
-      backup-itchy = {
-        path = "/mnt/data1/backup/itchy";
-        "valid users" = "conor";
-        "time machine" = "yes";
+    };
+
+    # Enable Avahi Service
+    avahi = {
+      enable = true;
+      nssmdns = true;
+      publish = {
+        enable = true;
+        userServices = true;
       };
     };
   };
 
-  # Setup Avahi Service
-  services.avahi = {
-    enable = true;
-    nssmdns = true;
-    publish = {
-      enable = true;
-      userServices = true;
+  networking = {
+    hostName = "jubjub"; # Define your hostname.
+    firewall = {
+      enable = true; # Enable firewall
+      allowedTCPPorts = [ 548 ];
+      allowedUDPPorts = [ 5353 ];
     };
   };
 
   # Check if share folder is created and set
   systemd.tmpfiles.rules = [ "d /mnt/data1 0755 conor users" ];
-
-  # Or disable the firewall altogether.
-  networking.firewall.enable = true;
-
-  # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 548 ];
-  networking.firewall.allowedUDPPorts = [ 5353 ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
