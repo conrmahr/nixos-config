@@ -6,29 +6,60 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules =
-    [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd = { 
+    availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+    kernelModules = [ ];
+    luks.devices = {
+        cryptkey = {
+          device = "/dev/disk/by-uuid/258154f6-2817-4c8a-8e87-709a00c19e3f";
+        };
+        cryptroot = {
+          allowDiscards = true;
+          device = "/dev/disk/by-uuid/4e677e2a-c28e-4e6a-b694-bfa6560f67a9";
+          keyFile = "/dev/mapper/cryptkey";
+          keyFileSize = 8192;
+        };
+        cryptswap = {
+          allowDiscards = true;
+          device = "/dev/disk/by-uuid/7e634364-7b89-42d6-9c0c-762c1c285ba0";
+          keyFile = "/dev/mapper/cryptkey";
+          keyFileSize = 8192;
+        };
+      };
+  };
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" = {
-    device = "rpool/root";
-    fsType = "zfs";
-  };
+  fileSystems."/" =
+    { device = "nvme-pool/system/root";
+      fsType = "zfs";
+    };
 
-  fileSystems."/home" = {
-    device = "rpool/home";
-    fsType = "zfs";
-  };
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/12CE-A600";
+      fsType = "vfat";
+    };
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/F5F0-1C42";
-    fsType = "vfat";
-  };
+  fileSystems."/nix" =
+    { device = "nvme-pool/local/nix";
+      fsType = "zfs";
+    };
 
-  swapDevices =
-    [{ device = "/dev/disk/by-uuid/cb9a5b2e-353b-4af7-902a-09a188cc0228"; }];
+  fileSystems."/var" =
+    { device = "nvme-pool/system/var";
+      fsType = "zfs";
+    };
+
+  fileSystems."/home/conor" =
+    { device = "nvme-pool/user/home/conor";
+      fsType = "zfs";
+    };
+
+    swapDevices = [
+      {
+        device = "/dev/mapper/cryptswap";
+      }
+    ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
