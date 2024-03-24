@@ -11,17 +11,17 @@
     kernelModules = [ ];
     luks.devices = {
         cryptkey = {
-          device = "/dev/disk/by-uuid/258154f6-2817-4c8a-8e87-709a00c19e3f";
+          device = "/dev/disk/by-uuid/3fd791d7-eacb-4605-8e55-bfb7ed510ea1";
         };
         cryptroot = {
           allowDiscards = true;
-          device = "/dev/disk/by-uuid/4e677e2a-c28e-4e6a-b694-bfa6560f67a9";
+          device = "/dev/disk/by-uuid/4780b475-46c0-4b53-be4d-6e6d122a92a5";
           keyFile = "/dev/mapper/cryptkey";
           keyFileSize = 8192;
         };
         cryptswap = {
           allowDiscards = true;
-          device = "/dev/disk/by-uuid/7e634364-7b89-42d6-9c0c-762c1c285ba0";
+          device = "/dev/disk/by-uuid/41294618-8a3c-46d2-b1d4-b3e46993184d";
           keyFile = "/dev/mapper/cryptkey";
           keyFileSize = 8192;
         };
