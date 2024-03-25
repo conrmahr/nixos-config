@@ -31,6 +31,8 @@
 
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs; [
+    sbctl
+    niv
     git
     gh
     wget
@@ -61,6 +63,14 @@
       '';
     })
   ];
+
+  # Unlock storage disks
+  environment.etc.crypttab.text = ''
+    cryptssd1 /dev/disk/by-uuid/b37a75d9-2a49-405e-9f28-9984550ae210 /dev/mapper/cryptkey keyfile-size=8192
+    cryptssd2 /dev/disk/by-uuid/8a299f1c-d217-4798-ad1e-5fc9abfd6d3d /dev/mapper/cryptkey keyfile-size=8192
+    crypthdd1 /dev/disk/by-uuid/79435cec-1da7-432a-8799-9fdd608d3761 /dev/mapper/cryptkey keyfile-size=8192
+    crypthdd2 /dev/disk/by-uuid/fd608556-e193-4df1-bd2d-3018791ad169 /dev/mapper/cryptkey keyfile-size=8192
+  '';
 
   nixpkgs = { config = { allowUnfree = true; }; };
 
@@ -131,7 +141,8 @@
   };
 
   # Check if share folder is created and set
-  systemd.tmpfiles.rules = [ "d /mnt/data1 0755 conor users" ];
+  systemd.tmpfiles.rules =
+    [ "d /mnt/data1 0755 conor users" "Z /mnt/data1 0755 conor users" ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

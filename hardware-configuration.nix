@@ -6,60 +6,58 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd = { 
-    availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd = {
+    availableKernelModules =
+      [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
     kernelModules = [ ];
     luks.devices = {
-        cryptkey = {
-          device = "/dev/disk/by-uuid/3fd791d7-eacb-4605-8e55-bfb7ed510ea1";
-        };
-        cryptroot = {
-          allowDiscards = true;
-          device = "/dev/disk/by-uuid/4780b475-46c0-4b53-be4d-6e6d122a92a5";
-          keyFile = "/dev/mapper/cryptkey";
-          keyFileSize = 8192;
-        };
-        cryptswap = {
-          allowDiscards = true;
-          device = "/dev/disk/by-uuid/41294618-8a3c-46d2-b1d4-b3e46993184d";
-          keyFile = "/dev/mapper/cryptkey";
-          keyFileSize = 8192;
-        };
+      cryptkey = {
+        device = "/dev/disk/by-uuid/3fd791d7-eacb-4605-8e55-bfb7ed510ea1";
       };
+      cryptroot = {
+        allowDiscards = true;
+        device = "/dev/disk/by-uuid/4780b475-46c0-4b53-be4d-6e6d122a92a5";
+        keyFile = "/dev/mapper/cryptkey";
+        keyFileSize = 8192;
+      };
+      cryptswap = {
+        allowDiscards = true;
+        device = "/dev/disk/by-uuid/41294618-8a3c-46d2-b1d4-b3e46993184d";
+        keyFile = "/dev/mapper/cryptkey";
+        keyFileSize = 8192;
+      };
+    };
   };
+
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "nvme-pool/system/root";
-      fsType = "zfs";
-    };
+  fileSystems."/" = {
+    device = "nvme-pool/system/root";
+    fsType = "zfs";
+  };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/12CE-A600";
-      fsType = "vfat";
-    };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/12CE-A600";
+    fsType = "vfat";
+  };
 
-  fileSystems."/nix" =
-    { device = "nvme-pool/local/nix";
-      fsType = "zfs";
-    };
+  fileSystems."/nix" = {
+    device = "nvme-pool/local/nix";
+    fsType = "zfs";
+  };
 
-  fileSystems."/var" =
-    { device = "nvme-pool/system/var";
-      fsType = "zfs";
-    };
+  fileSystems."/var" = {
+    device = "nvme-pool/system/var";
+    fsType = "zfs";
+  };
 
-  fileSystems."/home/conor" =
-    { device = "nvme-pool/user/home/conor";
-      fsType = "zfs";
-    };
+  fileSystems."/home/conor" = {
+    device = "nvme-pool/user/home/conor";
+    fsType = "zfs";
+  };
 
-    swapDevices = [
-      {
-        device = "/dev/mapper/cryptswap";
-      }
-    ];
+  swapDevices = [{ device = "/dev/mapper/cryptswap"; }];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
